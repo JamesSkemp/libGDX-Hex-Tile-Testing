@@ -2,21 +2,26 @@ package com.jamesrskemp.hextiletest;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.maps.MapLayers;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.HexagonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.jamesrskemp.hextiletest.utils.OrthographicCameraController;
 
 public class HexTileTest extends ApplicationAdapter {
-	TiledMap map;
 	OrthographicCamera camera;
+	OrthographicCameraController cameraController;
+
+	TiledMap map;
 	HexagonalTiledMapRenderer renderer;
 	Texture texture;
 
@@ -31,6 +36,16 @@ public class HexTileTest extends ApplicationAdapter {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, (w / h) * 480, 480);
 		camera.update();
+
+		cameraController = new OrthographicCameraController(camera);
+
+		// Handle inputs.
+		InputMultiplexer inputMultiplexer = new InputMultiplexer();
+		// TODO add any game-related actions you want to handle before the camera.
+		inputMultiplexer.addProcessor(new GestureDetector(cameraController));
+		inputMultiplexer.addProcessor(cameraController);
+
+		Gdx.input.setInputProcessor(inputMultiplexer);
 
 		texture = new Texture(Gdx.files.internal("hexes.png"));
 		TextureRegion[][] hexes = TextureRegion.split(texture, 112, 97);
