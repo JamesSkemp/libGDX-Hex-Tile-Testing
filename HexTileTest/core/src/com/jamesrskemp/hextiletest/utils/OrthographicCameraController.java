@@ -5,7 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 /**
  * Author: James Skemp ( jamesrskemp.com / strivinglife.com / github.com/JamesSkemp ), based upon libGDX 1.6.2.
@@ -33,6 +35,13 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 
 	final OrthographicCamera camera;
 
+	final Vector3 curr = new Vector3();
+	final Vector3 last = new Vector3(-1, -1, -1);
+	final Vector3 delta = new Vector3();
+	final Vector3 selectedPosition = new Vector3();
+
+	float initialZoomScale = 1;
+
 	/**
 	 * Enables logging. Setting this to false will override all options below.
 	 */
@@ -56,6 +65,8 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 
 	public OrthographicCameraController(OrthographicCamera camera) {
 		this.camera = camera;
+
+		initialZoomScale = camera.zoom;
 	}
 
 	@Override
@@ -95,6 +106,8 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 		if (logActivity && (logAllActivity || logGestureListenerActivity)) {
 			Gdx.app.log(TAG, "longPress triggered. x " + x + " y " + y);
 		}
+		camera.unproject(selectedPosition.set(x, y, 0));
+		Gdx.app.log(TAG, "selectedPosition: " + selectedPosition);
 		return false;
 	}
 
@@ -135,7 +148,10 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 		if (logActivity && (logAllActivity || logInputProcessorActivity)) {
 			Gdx.app.log(TAG, "scrolled triggered. amount " + amount);
 		}
-		return false;
+		camera.zoom = MathUtils.clamp(initialZoomScale + (amount * 0.1f), Constants.MAXIMUM_ZOOM_IN, Constants.MAXIMUM_ZOOM_OUT);
+		initialZoomScale = camera.zoom;
+		Gdx.app.log(TAG, "camera zoom: " + camera.zoom);
+		return true;
 	}
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
@@ -150,6 +166,8 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 		if (logActivity && (logAllActivity || logGestureListenerActivity)) {
 			Gdx.app.log(TAG, "touchDown (Gesture) triggered. x " + x + " y " + y + " pointer " + pointer + " button " + button);
 		}
+		camera.unproject(selectedPosition.set(x, y, 0));
+		Gdx.app.log(TAG, "selectedPosition: " + selectedPosition);
 		return false;
 	}
 
@@ -166,6 +184,15 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 		if (logActivity && (logAllActivity || logInputProcessorActivity)) {
 			Gdx.app.log(TAG, "touchDragged triggered. screenX " + screenX + " screenY " + screenY + " pointer " + pointer);
 		}
+		camera.unproject(curr.set(screenX, screenY, 0));
+		if (!(last.x == -1 && last.y == -1 && last.z == -1)) {
+			camera.unproject(delta.set(last.x, last.y, 0));
+			delta.sub(curr);
+			camera.position.add(delta.x, delta.y, 0);
+		}
+		last.set(screenX, screenY, 0);
+		Gdx.app.log(TAG, "current position: " + curr);
+		Gdx.app.log(TAG, "last position: " + last);
 		return false;
 	}
 
@@ -174,6 +201,8 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 		if (logActivity && (logAllActivity || logInputProcessorActivity)) {
 			Gdx.app.log(TAG, "touchUp triggered. screenX " + screenX + " screenY " + screenY + " pointer " + pointer + " button " + button);
 		}
+		last.set(-1, -1, -1);
+		initialZoomScale = camera.zoom;
 		return false;
 	}
 
@@ -182,6 +211,8 @@ public class OrthographicCameraController implements InputProcessor, GestureDete
 		if (logActivity && (logAllActivity || logGestureListenerActivity)) {
 			Gdx.app.log(TAG, "zoom triggered. initialDistance " + initialDistance + " distance " + distance);
 		}
-		return false;
+		camera.zoom = MathUtils.clamp(initialZoomScale * initialDistance / distance, Constants.MAXIMUM_ZOOM_IN, Constants.MAXIMUM_ZOOM_OUT);
+		Gdx.app.log(TAG, "camera zoom: " + camera.zoom);
+		return true;
 	}
 }
