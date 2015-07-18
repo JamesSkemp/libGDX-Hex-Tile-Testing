@@ -59,8 +59,8 @@ public class HexTileTest extends ApplicationAdapter {
 
 		for (int l = 0; l < 1; l++) {
 			TiledMapTileLayer layer = new TiledMapTileLayer(45, 30, 112, 97);
-			for (int y = 0; y < 30; y++) {
-				for (int x = 0; x < 45; x++) {
+			for (int y = 0; y < 10; y++) {
+				for (int x = 0; x < 15; x++) {
 					int id = (int)(Math.random() * 3);
 					TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
 					cell.setTile(tiles[id]);
