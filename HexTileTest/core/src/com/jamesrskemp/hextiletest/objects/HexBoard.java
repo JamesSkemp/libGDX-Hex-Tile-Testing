@@ -39,20 +39,22 @@ public class HexBoard extends Actor implements Disposable {
 
 		map = new TiledMap();
 		MapLayers layers = map.getLayers();
-		TiledMapTile[] tiles = new TiledMapTile[3];
+		TiledMapTile[] tiles = new TiledMapTile[4];
 		tiles[0] = new StaticTiledMapTile(new TextureRegion(hexes[0][0]));
 		tiles[1] = new StaticTiledMapTile(new TextureRegion(hexes[0][1]));
 		tiles[2] = new StaticTiledMapTile(new TextureRegion(hexes[1][0]));
+		// This is actually an empty space, but we'll use it as a clear.
+		tiles[3] = new StaticTiledMapTile(new TextureRegion(hexes[1][1]));
 
-		int tilesWide = 45;
-		int tilesHigh = 30;
+		int tilesWide = 15;
+		int tilesHigh = 10;
 		int tileWidth = 112;
 		int tileHeight = 97;
 
 		for (int l = 0; l < 1; l++) {
 			TiledMapTileLayer layer = new TiledMapTileLayer(tilesWide, tilesHigh, tileWidth, tileHeight);
-			for (int y = 0; y < 30; y++) {
-				for (int x = 0; x < 45; x++) {
+			for (int y = 0; y < tilesHigh; y++) {
+				for (int x = 0; x < tilesWide; x++) {
 					int id = (int) (Math.random() * 3);
 					TiledMapTileLayer.Cell cell = new TiledMapTileLayer.Cell();
 					cell.setTile(tiles[id]);
