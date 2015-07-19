@@ -64,7 +64,7 @@ public class HexBoard extends Actor implements Disposable {
 			layers.add(layer);
 		}
 
-		//
+		// TODO if you enable debugging lines you'll see that this isn't a perfect match, and will need to be corrected.
 		setBounds(
 				getX(), getY()
 				, (tilesWide * tileWidth), (tilesHigh * tileHeight)
